@@ -12,12 +12,19 @@ import java.util.UUID;
 public class Computer extends Product {
     private final ProcessorType processorType;
     private final RamSize ramSize;
+    private final DiskSize diskSize;
 
-    public Computer(UUID id, String name, BigDecimal price, int quantity, ProcessorType processorType, RamSize ramSize) {
-        super(id, name, price, quantity);
+    public Computer(UUID id, String manufacturer, String model, BigDecimal price, int quantity,
+                    ProcessorType processorType, DiskSize diskSize, RamSize ramSize) {
+
+        super(id, manufacturer, model, price, quantity);
 
         if (processorType == null) {
             throw new IllegalArgumentException("Processor type cannot be null");
+        }
+
+        if (diskSize == null) {
+            throw new IllegalArgumentException("Disk size cannot be null");
         }
 
         if (ramSize == null) {
@@ -25,6 +32,7 @@ public class Computer extends Product {
         }
 
         this.processorType = processorType;
+        this.diskSize = diskSize;
         this.ramSize = ramSize;
     }
 }

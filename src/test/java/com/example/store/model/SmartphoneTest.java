@@ -11,63 +11,66 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SmartphoneTest {
 
+    private static final UUID DEFAULT_ID = UUID.randomUUID();
+    private static final String DEFAULT_MANUFACTURER = "Samsung";
+    private static final String DEFAULT_MODEL = "Galaxy S23";
+    private static final BigDecimal DEFAULT_PRICE = BigDecimal.valueOf(3000);
+    private static final int DEFAULT_QUANTITY = 1;
+    private static final Color DEFAULT_COLOR = Color.BLACK;
+    private static final BatteryCapacity DEFAULT_BATTERY = BatteryCapacity.BATTERY_4500MAH;
+    private static final List<String> DEFAULT_ACCESSORIES = List.of("Charger");
+
+    // Jedyne miejsce wywołania konstruktora Smartphone w całej klasie testowej:
+    private Smartphone createSmartphone(Color color, BatteryCapacity batteryCapacity, List<String> accessories) {
+        return new Smartphone(
+                DEFAULT_ID,
+                DEFAULT_MANUFACTURER,
+                DEFAULT_MODEL,
+                DEFAULT_PRICE,
+                DEFAULT_QUANTITY,
+                color,
+                batteryCapacity,
+                accessories
+        );
+    }
+
+    private Smartphone createDefaultSmartphone() {
+        return createSmartphone(DEFAULT_COLOR, DEFAULT_BATTERY, DEFAULT_ACCESSORIES);
+    }
+
     @Test
     void shouldCreateObjectWithCorrectData() {
-        // Arrange
-        UUID id = UUID.randomUUID();
-        List<String> accessories = List.of("Charger");
+        Smartphone smartphone = createDefaultSmartphone();
 
-        // Act
-        Smartphone smartphone = new Smartphone(id, "Samsung", BigDecimal.valueOf(3000), 1, Color.BLACK,
-                BatteryCapacity.BATTERY_4500MAH, accessories);
-
-        // Assert
-        assertEquals(id, smartphone.getId());
-        assertEquals("Samsung", smartphone.getName());
-        assertEquals(BigDecimal.valueOf(3000), smartphone.getPrice());
-        assertEquals(1, smartphone.getQuantity());
-        assertEquals(Color.BLACK, smartphone.getColor());
-        assertEquals(BatteryCapacity.BATTERY_4500MAH, smartphone.getBatteryCapacity());
-        assertEquals(accessories, smartphone.getAccessories());
+        assertEquals(DEFAULT_ID, smartphone.getId());
+        assertEquals(DEFAULT_MANUFACTURER, smartphone.getManufacturer());
+        assertEquals(DEFAULT_MODEL, smartphone.getModel());
+        assertEquals("Samsung Galaxy S23", smartphone.getName());
+        assertEquals(DEFAULT_PRICE, smartphone.getPrice());
+        assertEquals(DEFAULT_QUANTITY, smartphone.getQuantity());
+        assertEquals(DEFAULT_COLOR, smartphone.getColor());
+        assertEquals(DEFAULT_BATTERY, smartphone.getBatteryCapacity());
+        assertEquals(DEFAULT_ACCESSORIES, smartphone.getAccessories());
     }
 
     @Test
     void shouldThrowExceptionWhenColorIsNull() {
-        // Arrange
-        UUID id = UUID.randomUUID();
-        List<String> accessories = List.of("Charger");
-
-        // Act & Assert
-        assertThatThrownBy(() -> new Smartphone(id, "Samsung", BigDecimal.valueOf(3000), 1, null,
-                BatteryCapacity.BATTERY_4500MAH, accessories))
+        assertThatThrownBy(() -> createSmartphone(null, DEFAULT_BATTERY, DEFAULT_ACCESSORIES))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Color cannot be null");
     }
 
     @Test
     void shouldThrowExceptionWhenBatteryCapacityIsNull() {
-        // Arrange
-        UUID id = UUID.randomUUID();
-        List<String> accessories = List.of("Charger");
-
-        // Act & Assert
-        assertThatThrownBy(() -> new Smartphone(id, "Samsung", BigDecimal.valueOf(3000), 1, Color.BLACK,
-                null, accessories))
+        assertThatThrownBy(() -> createSmartphone(DEFAULT_COLOR, null, DEFAULT_ACCESSORIES))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Battery capacity cannot be null");
     }
 
     @Test
     void shouldThrowExceptionWhenAccessoriesIsNull() {
-        // Arrange
-        UUID id = UUID.randomUUID();
-        List<String> accessories = null;
-
-        // Act & Assert
-        assertThatThrownBy(() -> new Smartphone(id, "Samsung", BigDecimal.valueOf(3000), 1, Color.BLACK,
-                BatteryCapacity.BATTERY_4500MAH, accessories))
+        assertThatThrownBy(() -> createSmartphone(DEFAULT_COLOR, DEFAULT_BATTERY, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Accessories cannot be null");
     }
-
 }

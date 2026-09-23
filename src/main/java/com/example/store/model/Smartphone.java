@@ -15,8 +15,9 @@ public class Smartphone extends Product {
     private final BatteryCapacity batteryCapacity;
     private final List<String> accessories;
 
-    public Smartphone(UUID id, String name, BigDecimal price, int quantity, Color color, BatteryCapacity batteryCapacity, List<String> accessories) {
-        super(id, name, price, quantity);
+    public Smartphone(UUID id, String manufacturer, String model, BigDecimal price, int quantity, Color color,
+                      BatteryCapacity batteryCapacity, List<String> accessories) {
+        super(id, manufacturer, model, price, quantity);
 
         if (color == null) {
             throw new IllegalArgumentException("Color cannot be null");

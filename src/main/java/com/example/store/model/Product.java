@@ -10,20 +10,24 @@ import java.util.UUID;
 @Getter
 @EqualsAndHashCode(of = "id")
 @ToString
-
 public abstract class Product {
     private final UUID id;
-    private final String name;
+    private final String manufacturer;
+    private final String model;
     private BigDecimal price;
     private int quantity;
 
-    public Product(UUID id, String name, BigDecimal price, int quantity) {
+    public Product(UUID id, String manufacturer, String model, BigDecimal price, int quantity) {
         if (id == null) {
             throw new IllegalArgumentException("Id cannot be null");
         }
 
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Name cannot be null or empty");
+        if (manufacturer == null || manufacturer.isBlank()) {
+            throw new IllegalArgumentException("Manufacturer cannot be null or empty");
+        }
+
+        if (model == null || model.isBlank()) {
+            throw new IllegalArgumentException("Model cannot be null or empty");
         }
 
         if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
@@ -35,8 +39,13 @@ public abstract class Product {
         }
 
         this.id = id;
-        this.name = name;
+        this.manufacturer = manufacturer;
+        this.model = model;
         this.price = price;
         this.quantity = quantity;
+    }
+
+    public String getName() {
+        return manufacturer + " " + model;
     }
 }
