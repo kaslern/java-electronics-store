@@ -1,5 +1,6 @@
 package com.example.store.model;
 
+import com.example.store.exception.InsufficientStockException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -47,5 +48,18 @@ public abstract class Product {
 
     public String getName() {
         return manufacturer + " " + model;
+    }
+
+    public void decreaseQuantity(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Amount cannot be negative");
+        }
+        if (this.quantity == 0) {
+            throw new InsufficientStockException("Product out of stock");
+        }
+        if (amount > this.quantity) {
+            throw new InsufficientStockException("Not enough stock available! Available pcs: " + quantity);
+        }
+        this.quantity -= amount;
     }
 }
