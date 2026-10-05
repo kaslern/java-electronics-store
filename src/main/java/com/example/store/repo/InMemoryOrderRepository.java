@@ -2,10 +2,7 @@ package com.example.store.repo;
 
 import com.example.store.model.Order;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class InMemoryOrderRepository implements OrderRepository{
     private final Map<UUID, Order> orders = new HashMap<>();
@@ -19,5 +16,10 @@ public class InMemoryOrderRepository implements OrderRepository{
     @Override
     public Optional<Order> findById(UUID id) {
         return Optional.ofNullable(orders.get(id));
+    }
+
+    @Override
+    public List<Order> findAll() {
+        return new ArrayList<>(orders.values());
     }
 }

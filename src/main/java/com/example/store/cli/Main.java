@@ -1,27 +1,38 @@
 package com.example.store.cli;
 
 import com.example.store.model.*;
-import com.example.store.repo.InMemoryOrderRepository;
-import com.example.store.repo.InMemoryProductRepository;
-import com.example.store.repo.OrderRepository;
-import com.example.store.repo.ProductRepository;
+import com.example.store.repo.*;
 import com.example.store.service.CartManager;
 import com.example.store.service.InvoiceGenerator;
 import com.example.store.service.OrderService;
 import com.example.store.service.ProductManager;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
 public class Main {
     public static void main(String[] args) {
+        File ordersFile = new File("orders.dat");
         ProductRepository productRepository = new InMemoryProductRepository();
-        OrderRepository orderRepository = new InMemoryOrderRepository();
+        OrderRepository orderRepository = new FileOrderRepository(ordersFile);
         ProductManager productManager = new ProductManager(productRepository);
         CartManager cartManager = new CartManager(productManager);
         OrderService orderService = new OrderService(cartManager, orderRepository);
         InvoiceGenerator invoiceGenerator = new InvoiceGenerator();
+
+        List<Order> loadedOrders = orderRepository.findAll();
+        System.out.println("==================================================");
+        if (loadedOrders.isEmpty()) {
+            System.out.println("No previously saved orders found in the file.");
+        } else {
+            System.out.println("Loaded orders from file (" + loadedOrders.size() + "):");
+            for (Order order : loadedOrders) {
+                System.out.println("   - ID: " + order.getOrderId() + " | Date: " + order.getOrderDate() + " | Total: " + order.getTotalPrice() + " PLN");
+            }
+        }
+        System.out.println("==================================================\n");
 
         Product tv = new Electronics(
                 UUID.randomUUID(),
@@ -57,7 +68,8 @@ public class Main {
         productManager.addProduct(laptop);
         productManager.addProduct(phone);
 
-        CommandManager commandManager = new CommandManager(cartManager, invoiceGenerator, orderService, productManager);
+        CommandManager commandManager = new CommandManager(cartManager, invoiceGenerator,
+                orderService, productManager);
         commandManager.commandCenter();
     }
 }

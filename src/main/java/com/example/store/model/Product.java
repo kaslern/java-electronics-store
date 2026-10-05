@@ -5,13 +5,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
 @EqualsAndHashCode(of = "id")
 @ToString
-public abstract class Product {
+public abstract class Product implements Serializable {
     private final UUID id;
     private final String manufacturer;
     private final String model;
