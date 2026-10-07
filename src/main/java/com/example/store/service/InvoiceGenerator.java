@@ -7,26 +7,25 @@ import com.example.store.model.OrderItem;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class InvoiceGenerator {
-    private int counter = 1;
-    private LocalDate lastResetDate = LocalDate.now();
+    private final AtomicInteger counter = new AtomicInteger(1);
+    private volatile LocalDate lastResetDate = LocalDate.now();
 
-    public Invoice generateInvoice(Order order) {
+    public synchronized Invoice generateInvoice(Order order) {
         if (order == null) {
             throw new IllegalArgumentException("Order must not be null");
         }
         if (!lastResetDate.equals(LocalDate.now())) {
-            counter = 1;
+            counter.set(1);
             lastResetDate = LocalDate.now();
         }
         String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String invoiceNumber = "INV-%s-%04d".formatted(dateStr, counter++);
+        String invoiceNumber = "INV-%s-%04d".formatted(dateStr, counter.getAndIncrement());
 
-        Invoice invoice = new Invoice(invoiceNumber, lastResetDate, order);
-
-        return invoice;
+        return new Invoice(invoiceNumber, lastResetDate, order);
     }
 
 
