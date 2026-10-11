@@ -15,6 +15,7 @@ import java.util.UUID;
 public class Cart {
     private final UUID id;
     private final List<Product> products;
+    private String promoCode;
 
     public Cart() {
         this.id = UUID.randomUUID();
@@ -38,11 +39,19 @@ public class Cart {
                 .orElse(false);
     }
 
+    public void applyPromoCode(String code) {
+        if (code == null || code.isBlank()) {
+            throw new IllegalArgumentException("Code must not be null or empty");
+        }
+        this.promoCode = code.trim().toUpperCase();
+    }
+
     public List<Product> getProducts() {
         return Collections.unmodifiableList(products);
     }
 
     public void clear() {
         this.products.clear();
+        this.promoCode = null;
     }
 }

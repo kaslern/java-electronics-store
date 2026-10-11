@@ -12,10 +12,12 @@ import java.util.UUID;
 public class OrderService {
     private final CartManager cartManager;
     private final OrderRepository orderRepository;
+    private final DiscountService discountService;
 
-    public OrderService(CartManager cartManager, OrderRepository orderRepository) {
+    public OrderService(CartManager cartManager, OrderRepository orderRepository, DiscountService discountService) {
         this.cartManager = cartManager;
         this.orderRepository = orderRepository;
+        this.discountService = discountService;
     }
 
     public Order createOrder(Customer customer, Cart cart) {
@@ -36,11 +38,14 @@ public class OrderService {
             product.decreaseQuantity(1);
         }
 
-        BigDecimal cartTotalPrice = cartManager.calculateTotalPrice(cart);
+        BigDecimal basePrice = cartManager.calculateTotalPrice(cart);
+        LocalDateTime orderDate = LocalDateTime.now();
+        BigDecimal finalPrice = discountService.applyDiscount(basePrice, orderDate, cart.getPromoCode());
+
         List<OrderItem> items = cart.getProducts().stream()
                 .map(product -> new OrderItem(product, 1, product.getPrice()))
                 .toList();
-        Order order = new Order(UUID.randomUUID(), customer, items, cartTotalPrice, LocalDateTime.now());
+        Order order = new Order(UUID.randomUUID(), customer, items, finalPrice, orderDate);
         orderRepository.save(order);
 
         simulateLongOrderProcessing();

@@ -31,6 +31,7 @@ class AsyncOrderServiceTest {
     private CartManager cartManager;
     private ProductManager productManager;
     private ProductRepository productRepository;
+    private DiscountService discountService;
     private AsyncOrderService asyncOrderService;
     private SyncOrderService syncOrderService;
     private ExecutorService executor;
@@ -43,7 +44,8 @@ class AsyncOrderServiceTest {
         orderRepository = new InMemoryOrderRepository();
         productManager = new ProductManager(productRepository);
         cartManager = new CartManager(productManager);
-        orderService = new OrderService(cartManager, orderRepository);
+        discountService = new DiscountService();
+        orderService = new OrderService(cartManager, orderRepository, discountService);
         syncOrderService = new SyncOrderService(orderService);
         executor = Executors.newFixedThreadPool(4);
         asyncOrderService = new AsyncOrderService(orderService, executor);
