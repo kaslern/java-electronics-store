@@ -4,6 +4,9 @@ import com.example.store.model.*;
 import com.example.store.repo.*;
 import com.example.store.service.*;
 import com.example.store.service.discount.DiscountService;
+import com.example.store.validation.ApprovalChain;
+import com.example.store.validation.RequiredFieldsStep;
+import com.example.store.validation.StockAvailabilityStep;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -16,9 +19,13 @@ public class Main {
         ProductRepository productRepository = new InMemoryProductRepository();
         OrderRepository orderRepository = new FileOrderRepository(ordersFile);
         ProductManager productManager = new ProductManager(productRepository);
+        ApprovalChain approvalChain = new ApprovalChain(List.of(
+                new RequiredFieldsStep(),
+                new StockAvailabilityStep()
+        ));
         CartManager cartManager = new CartManager(productManager);
         DiscountService discountService = new DiscountService();
-        OrderService orderService = new OrderService(cartManager, orderRepository, discountService);
+        OrderService orderService = new OrderService(cartManager, orderRepository, discountService, approvalChain);
         InvoiceGenerator invoiceGenerator = new InvoiceGenerator();
 
         List<Order> loadedOrders = orderRepository.findAll();

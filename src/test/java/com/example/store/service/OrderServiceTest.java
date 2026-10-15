@@ -3,11 +3,13 @@ package com.example.store.service;
 import com.example.store.model.*;
 import com.example.store.repo.OrderRepository;
 import com.example.store.service.discount.DiscountService;
+import com.example.store.validation.ApprovalChain;
+import com.example.store.validation.RequiredFieldsStep;
+import com.example.store.validation.StockAvailabilityStep;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -30,7 +32,9 @@ class OrderServiceTest {
     private OrderRepository orderRepository;
     @Mock
     private DiscountService discountService;
-    @InjectMocks
+
+    private ApprovalChain approvalChain;
+
     private OrderService orderService;
 
     private Cart cart;
@@ -41,6 +45,13 @@ class OrderServiceTest {
 
     @BeforeEach
     void setUp() {
+        approvalChain = new ApprovalChain(List.of(
+                new RequiredFieldsStep(),
+                new StockAvailabilityStep()
+        ));
+
+        orderService = new OrderService(cartManager, orderRepository, discountService, approvalChain);
+
         address = new Address("ul. Gratisowa 8", "Cebulowo", "21-370");
         customer = new Customer(UUID.randomUUID(), "Janusz", "Nosacz", "kiedysToBylo@prl.ru", address);
         cart = new Cart();
@@ -79,7 +90,7 @@ class OrderServiceTest {
         // Act
         Order result = orderService.createOrder(customer, cart);
 
-        //Assert & Verify
+        // Assert & Verify
         assertEquals(customer, result.getCustomer());
         assertEquals(BigDecimal.valueOf(9000), result.getTotalPrice());
         assertEquals(2, result.getItems().size());
@@ -94,16 +105,16 @@ class OrderServiceTest {
         void shouldThrowExceptionForNullCustomer() {
             // Act & Assert
             assertThatThrownBy(() -> orderService.createOrder(null, cart))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Customer or cart must not be null");
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("customer or cart cannot be null");
         }
 
         @Test
         void shouldThrowExceptionForCartIsNull() {
             // Act & Assert
             assertThatThrownBy(() -> orderService.createOrder(customer, null))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Customer or cart must not be null");
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("customer or cart cannot be null");
         }
 
         @Test
@@ -114,7 +125,7 @@ class OrderServiceTest {
             // Act & Assert
             assertThatThrownBy(() -> orderService.createOrder(customer, emptyCart))
                     .isInstanceOf(IllegalStateException.class)
-                    .hasMessage("Cart is empty");
+                    .hasMessage("cart is empty");
         }
     }
 }
