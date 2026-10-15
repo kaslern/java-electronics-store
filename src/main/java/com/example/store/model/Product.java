@@ -13,7 +13,7 @@ import java.util.UUID;
 @Getter
 @EqualsAndHashCode(of = "id")
 @ToString
-@SuperBuilder
+
 public abstract class Product implements Serializable {
     private final UUID id;
     private final String manufacturer;
@@ -22,31 +22,30 @@ public abstract class Product implements Serializable {
     private int quantity;
 
     public Product(UUID id, String manufacturer, String model, BigDecimal price, int quantity) {
-        if (id == null) {
-            throw new IllegalArgumentException("Id cannot be null");
-        }
-
-        if (manufacturer == null || manufacturer.isBlank()) {
-            throw new IllegalArgumentException("Manufacturer cannot be null or empty");
-        }
-
-        if (model == null || model.isBlank()) {
-            throw new IllegalArgumentException("Model cannot be null or empty");
-        }
-
-        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Price cannot be null or below zero");
-        }
-
-        if (quantity < 0) {
-            throw new IllegalArgumentException("Quantity cannot be negative");
-        }
-
+        validate(id, manufacturer, model, price, quantity);
         this.id = id;
         this.manufacturer = manufacturer;
         this.model = model;
         this.price = price;
         this.quantity = quantity;
+    }
+
+    private void validate(UUID id, String manufacturer, String model, BigDecimal price, int quantity) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        if (manufacturer == null || manufacturer.isBlank()) {
+            throw new IllegalArgumentException("Manufacturer cannot be null or empty");
+        }
+        if (model == null || model.isBlank()) {
+            throw new IllegalArgumentException("Model cannot be null or empty");
+        }
+        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Price cannot be null or below zero");
+        }
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
     }
 
     public String getName() {

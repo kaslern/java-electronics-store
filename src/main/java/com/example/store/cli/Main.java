@@ -32,39 +32,38 @@ public class Main {
         }
         System.out.println("==================================================\n");
 
-        Product tv = new Electronics(
-                UUID.randomUUID(),
-                "Sony",
-                "Bravia 55",
-                BigDecimal.valueOf(1000),
-                1
-        );
+        Product tv = Electronics.builder()
+                .id(UUID.randomUUID())
+                .manufacturer("Sony")
+                .model("Bravia 55")
+                .price(BigDecimal.valueOf(1000))
+                .quantity(1)
+                .build();
 
-        Product laptop = new Computer(
-                UUID.randomUUID(),
-                "Dell",
-                "XPS 15",
-                BigDecimal.valueOf(6500),
-                3,
-                ProcessorType.INTEL_I7,
-                DiskSize.DISK_1_TB,
-                RamSize.RAM_16GB
-        );
-
-        Product phone = new Smartphone(
-                UUID.randomUUID(),
-                "Apple",
-                "iPhone 15",
-                BigDecimal.valueOf(4800),
-                10,
-                Color.BLACK,
-                BatteryCapacity.BATTERY_4500MAH,
-                List.of("Charger", "Case")
-        );
+        Product laptop = Computer.builder()
+                .id(UUID.randomUUID())
+                .manufacturer("Dell")
+                .model("XPS 15")
+                .price(BigDecimal.valueOf(6500))
+                .quantity(3)
+                .processorType(ProcessorType.INTEL_I7)
+                .diskSize(DiskSize.DISK_1_TB)
+                .ramSize(RamSize.RAM_16GB)
+                .build();
+        Product smartphone = Smartphone.builder()
+                .id(UUID.randomUUID())
+                .manufacturer("Apple")
+                .model("iPhone 15")
+                .price(BigDecimal.valueOf(5000))
+                .quantity(10)
+                .color(Color.BLACK)
+                .batteryCapacity(BatteryCapacity.BATTERY_4500MAH)
+                .accessories(List.of("Charger", "Case"))
+                .build();
 
         productManager.addProduct(tv);
         productManager.addProduct(laptop);
-        productManager.addProduct(phone);
+        productManager.addProduct(smartphone);
 
         CommandManager commandManager = new CommandManager(cartManager, invoiceGenerator,
                 orderService, productManager, discountService);

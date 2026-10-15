@@ -33,14 +33,29 @@ class CartManagerTest {
     @BeforeEach
     void setUp() {
         cart = new Cart();
-        UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
         List<String> accessories = List.of("Charger");
 
-        smartphone1 = new Smartphone(id1, "Apple", "Iphone 18", BigDecimal.valueOf(5000), 1,
-                Color.BLACK, BatteryCapacity.BATTERY_4500MAH, accessories);
-        smartphone2 = new Smartphone(id2, "Samsung", "Galaxy S24", BigDecimal.valueOf(4000), 1,
-                Color.BLACK, BatteryCapacity.BATTERY_4500MAH, accessories);
+        smartphone1 = Smartphone.builder()
+                .id(UUID.randomUUID())
+                .manufacturer("Apple")
+                .model("iPhone 15")
+                .price(BigDecimal.valueOf(5000))
+                .quantity(10)
+                .color(Color.BLACK)
+                .batteryCapacity(BatteryCapacity.BATTERY_4500MAH)
+                .accessories(List.of("Charger", "Case"))
+                .build();
+        smartphone2 = Smartphone.builder()
+                .id(id2)
+                .manufacturer("Samsung")
+                .model("Galaxy S24")
+                .price(BigDecimal.valueOf(4000))
+                .quantity(1)
+                .color(Color.BLACK)
+                .batteryCapacity(BatteryCapacity.BATTERY_4500MAH)
+                .accessories(accessories)
+                .build();
     }
 
     @Test
