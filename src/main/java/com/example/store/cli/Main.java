@@ -3,6 +3,7 @@ package com.example.store.cli;
 import com.example.store.model.*;
 import com.example.store.repo.*;
 import com.example.store.service.*;
+import com.example.store.service.discount.DiscountService;
 
 import java.io.File;
 import java.math.BigDecimal;

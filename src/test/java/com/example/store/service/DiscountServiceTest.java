@@ -1,11 +1,11 @@
 package com.example.store.service;
 
+import com.example.store.service.discount.DiscountService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,14 +27,15 @@ class DiscountServiceTest {
         assertEquals(new BigDecimal("90.00"), priceAfterDiscount);
     }
 
-    @Test
-    void shouldApplyDiscountForPromoCode() {
+    @ParameterizedTest
+    @ValueSource(strings = {"VIP20", "vip20", " VIP20 ", "Vip20"})
+    void shouldApplyDiscountForPromoCode(String promoCode) {
         // Arrange
         BigDecimal price = BigDecimal.valueOf(100);
         LocalDateTime orderDate = LocalDateTime.of(2026, 10, 12, 12, 0);
 
         // Act
-        BigDecimal priceAfterDiscount = discountService.applyDiscount(price, orderDate, "VIP20");
+        BigDecimal priceAfterDiscount = discountService.applyDiscount(price, orderDate, promoCode);
 
         // Assert
         assertEquals(new BigDecimal("80.00"), priceAfterDiscount);

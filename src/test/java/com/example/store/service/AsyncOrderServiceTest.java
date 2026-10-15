@@ -5,13 +5,12 @@ import com.example.store.repo.InMemoryOrderRepository;
 import com.example.store.repo.InMemoryProductRepository;
 import com.example.store.repo.OrderRepository;
 import com.example.store.repo.ProductRepository;
-import lombok.Builder;
+import com.example.store.service.discount.DiscountService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -21,7 +20,6 @@ import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 
 class AsyncOrderServiceTest {

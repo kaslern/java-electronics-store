@@ -63,7 +63,13 @@ class FileOrderRepositoryTest {
     private Order createSampleOrder() {
         Address address = new Address("ul. Gratisowa 8", "Cebulowo", "21-370");
         Customer customer = new Customer(UUID.randomUUID(), "Janusz", "Nosacz", "kiedysToBylo@prl.ru", address);
-        Product tv = new Electronics(UUID.randomUUID(), "Sony", "Bravia", BigDecimal.valueOf(3000), 1);
+        Product tv = Electronics.builder()
+                .id(UUID.randomUUID())
+                .manufacturer("Sony")
+                .model("Bravia")
+                .price(BigDecimal.valueOf(3000))
+                .quantity(1)
+                .build();
         OrderItem item = new OrderItem(tv, 1, tv.getPrice());
 
         return new Order(UUID.randomUUID(), customer, List.of(item), BigDecimal.valueOf(3000), LocalDateTime.now());
