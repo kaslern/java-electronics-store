@@ -19,10 +19,16 @@ class CartTest {
     @BeforeEach
     void setUp() {
         cart = new Cart();
-        UUID productId = UUID.randomUUID();
-        List<String> accessories = List.of("Charger");
-        smartphone = new Smartphone(productId, "Apple", "Iphone 18", BigDecimal.valueOf(5000), 1,
-                Color.BLACK, BatteryCapacity.BATTERY_4500MAH, accessories);
+        smartphone = Smartphone.builder()
+                .id(UUID.randomUUID())
+                .manufacturer("Apple")
+                .model("iPhone 18")
+                .price(BigDecimal.valueOf(5000))
+                .quantity(10)
+                .color(Color.BLACK)
+                .batteryCapacity(BatteryCapacity.BATTERY_4500MAH)
+                .accessories(List.of("Charger", "Case"))
+                .build();
     }
 
     @Test

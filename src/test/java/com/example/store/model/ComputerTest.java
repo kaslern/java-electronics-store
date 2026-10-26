@@ -20,16 +20,16 @@ class ComputerTest {
     private static final RamSize DEFAULT_RAM = RamSize.RAM_16GB;
 
     private Computer createComputer(ProcessorType processorType, DiskSize diskSize, RamSize ramSize) {
-        return new Computer(
-                DEFAULT_ID,
-                DEFAULT_MANUFACTURER,
-                DEFAULT_MODEL,
-                DEFAULT_PRICE,
-                DEFAULT_QUANTITY,
-                processorType,
-                diskSize,
-                ramSize
-        );
+        return Computer.builder()
+                .id(DEFAULT_ID)
+                .manufacturer(DEFAULT_MANUFACTURER)
+                .model(DEFAULT_MODEL)
+                .price(DEFAULT_PRICE)
+                .quantity(DEFAULT_QUANTITY)
+                .processorType(processorType)
+                .diskSize(diskSize)
+                .ramSize(ramSize)
+                .build();
     }
 
     @Test

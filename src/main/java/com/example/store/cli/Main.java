@@ -3,6 +3,10 @@ package com.example.store.cli;
 import com.example.store.model.*;
 import com.example.store.repo.*;
 import com.example.store.service.*;
+import com.example.store.service.discount.DiscountService;
+import com.example.store.validation.ApprovalChain;
+import com.example.store.validation.RequiredFieldsStep;
+import com.example.store.validation.StockAvailabilityStep;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -15,9 +19,13 @@ public class Main {
         ProductRepository productRepository = new InMemoryProductRepository();
         OrderRepository orderRepository = new FileOrderRepository(ordersFile);
         ProductManager productManager = new ProductManager(productRepository);
+        ApprovalChain approvalChain = new ApprovalChain(List.of(
+                new RequiredFieldsStep(),
+                new StockAvailabilityStep()
+        ));
         CartManager cartManager = new CartManager(productManager);
         DiscountService discountService = new DiscountService();
-        OrderService orderService = new OrderService(cartManager, orderRepository, discountService);
+        OrderService orderService = new OrderService(cartManager, orderRepository, discountService, approvalChain);
         InvoiceGenerator invoiceGenerator = new InvoiceGenerator();
 
         List<Order> loadedOrders = orderRepository.findAll();
@@ -32,39 +40,38 @@ public class Main {
         }
         System.out.println("==================================================\n");
 
-        Product tv = new Electronics(
-                UUID.randomUUID(),
-                "Sony",
-                "Bravia 55",
-                BigDecimal.valueOf(1000),
-                1
-        );
+        Product tv = Electronics.builder()
+                .id(UUID.randomUUID())
+                .manufacturer("Sony")
+                .model("Bravia 55")
+                .price(BigDecimal.valueOf(1000))
+                .quantity(1)
+                .build();
 
-        Product laptop = new Computer(
-                UUID.randomUUID(),
-                "Dell",
-                "XPS 15",
-                BigDecimal.valueOf(6500),
-                3,
-                ProcessorType.INTEL_I7,
-                DiskSize.DISK_1_TB,
-                RamSize.RAM_16GB
-        );
-
-        Product phone = new Smartphone(
-                UUID.randomUUID(),
-                "Apple",
-                "iPhone 15",
-                BigDecimal.valueOf(4800),
-                10,
-                Color.BLACK,
-                BatteryCapacity.BATTERY_4500MAH,
-                List.of("Charger", "Case")
-        );
+        Product laptop = Computer.builder()
+                .id(UUID.randomUUID())
+                .manufacturer("Dell")
+                .model("XPS 15")
+                .price(BigDecimal.valueOf(6500))
+                .quantity(3)
+                .processorType(ProcessorType.INTEL_I7)
+                .diskSize(DiskSize.DISK_1_TB)
+                .ramSize(RamSize.RAM_16GB)
+                .build();
+        Product smartphone = Smartphone.builder()
+                .id(UUID.randomUUID())
+                .manufacturer("Apple")
+                .model("iPhone 15")
+                .price(BigDecimal.valueOf(5000))
+                .quantity(10)
+                .color(Color.BLACK)
+                .batteryCapacity(BatteryCapacity.BATTERY_4500MAH)
+                .accessories(List.of("Charger", "Case"))
+                .build();
 
         productManager.addProduct(tv);
         productManager.addProduct(laptop);
-        productManager.addProduct(phone);
+        productManager.addProduct(smartphone);
 
         CommandManager commandManager = new CommandManager(cartManager, invoiceGenerator,
                 orderService, productManager, discountService);

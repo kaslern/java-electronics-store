@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrderTest {
@@ -33,10 +32,16 @@ class OrderTest {
         validCustomer = new Customer(UUID.randomUUID(), "Janusz",
                 "Nosacz", "kiedysToBylo@prl.ru", validAddress);
 
-        List<String> accessories = List.of("Charger");
-        smartphone1 = new Smartphone(UUID.randomUUID(), "Apple",
-                "Iphone 18", BigDecimal.valueOf(5000), 1,
-                Color.BLACK, BatteryCapacity.BATTERY_4500MAH, accessories);
+        smartphone1 = Smartphone.builder()
+                .id(UUID.randomUUID())
+                .manufacturer("Apple")
+                .model("iPhone 18")
+                .price(BigDecimal.valueOf(5000))
+                .quantity(10)
+                .color(Color.BLACK)
+                .batteryCapacity(BatteryCapacity.BATTERY_4500MAH)
+                .accessories(List.of("Charger", "Case"))
+                .build();
 
         validOrderItem = new OrderItem(smartphone1, 1, BigDecimal.valueOf(5000));
         validItems = List.of(validOrderItem);

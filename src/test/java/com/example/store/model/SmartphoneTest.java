@@ -20,18 +20,18 @@ class SmartphoneTest {
     private static final BatteryCapacity DEFAULT_BATTERY = BatteryCapacity.BATTERY_4500MAH;
     private static final List<String> DEFAULT_ACCESSORIES = List.of("Charger");
 
-    // Jedyne miejsce wywołania konstruktora Smartphone w całej klasie testowej:
+
     private Smartphone createSmartphone(Color color, BatteryCapacity batteryCapacity, List<String> accessories) {
-        return new Smartphone(
-                DEFAULT_ID,
-                DEFAULT_MANUFACTURER,
-                DEFAULT_MODEL,
-                DEFAULT_PRICE,
-                DEFAULT_QUANTITY,
-                color,
-                batteryCapacity,
-                accessories
-        );
+        return Smartphone.builder()
+                .id(DEFAULT_ID)
+                .manufacturer(DEFAULT_MANUFACTURER)
+                .model(DEFAULT_MODEL)
+                .price(DEFAULT_PRICE)
+                .quantity(DEFAULT_QUANTITY)
+                .color(color)
+                .batteryCapacity(batteryCapacity)
+                .accessories(accessories)
+                .build();
     }
 
     private Smartphone createDefaultSmartphone() {

@@ -3,6 +3,9 @@ package com.example.store.service;
 import com.example.store.exception.InsufficientStockException;
 import com.example.store.model.*;
 import com.example.store.repo.OrderRepository;
+import com.example.store.service.discount.DiscountService;
+import com.example.store.validation.OrderContext;
+import com.example.store.validation.ApprovalChain;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,26 +16,24 @@ public class OrderService {
     private final CartManager cartManager;
     private final OrderRepository orderRepository;
     private final DiscountService discountService;
+    private final ApprovalChain approvalChain;
 
-    public OrderService(CartManager cartManager, OrderRepository orderRepository, DiscountService discountService) {
+    public OrderService(CartManager cartManager,
+                        OrderRepository orderRepository,
+                        DiscountService discountService,
+                        ApprovalChain approvalChain) {
         this.cartManager = cartManager;
         this.orderRepository = orderRepository;
         this.discountService = discountService;
+        this.approvalChain = approvalChain;
     }
 
     public Order createOrder(Customer customer, Cart cart) {
-        if (customer == null || cart == null) {
-            throw new IllegalArgumentException("Customer or cart must not be null");
-        }
-        if (cart.getProducts().isEmpty()) {
-            throw new IllegalStateException("Cart is empty");
-        }
 
-        for (Product product : cart.getProducts()) {
-            if (product.getQuantity() < 1) {
-                throw new InsufficientStockException("Product out of stock: " + product.getName());
-            }
-        }
+        OrderContext context = new OrderContext(customer, cart);
+        approvalChain.validate(context).ifPresent(rejection -> {
+            throw new IllegalStateException(rejection.reason());
+        });
 
         for (Product product : cart.getProducts()) {
             product.decreaseQuantity(1);
@@ -41,7 +42,6 @@ public class OrderService {
         BigDecimal basePrice = cartManager.calculateTotalPrice(cart);
         LocalDateTime orderDate = LocalDateTime.now();
         BigDecimal finalPrice = discountService.applyDiscount(basePrice, orderDate, cart.getPromoCode());
-
         List<OrderItem> items = cart.getProducts().stream()
                 .map(product -> new OrderItem(product, 1, product.getPrice()))
                 .toList();

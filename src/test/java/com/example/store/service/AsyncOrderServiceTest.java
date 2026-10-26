@@ -5,13 +5,15 @@ import com.example.store.repo.InMemoryOrderRepository;
 import com.example.store.repo.InMemoryProductRepository;
 import com.example.store.repo.OrderRepository;
 import com.example.store.repo.ProductRepository;
-import lombok.Builder;
+import com.example.store.service.discount.DiscountService;
+import com.example.store.validation.ApprovalChain;
+import com.example.store.validation.RequiredFieldsStep;
+import com.example.store.validation.StockAvailabilityStep;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -21,7 +23,6 @@ import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 
 class AsyncOrderServiceTest {
@@ -32,6 +33,7 @@ class AsyncOrderServiceTest {
     private ProductManager productManager;
     private ProductRepository productRepository;
     private DiscountService discountService;
+    private ApprovalChain approvalChain;
     private AsyncOrderService asyncOrderService;
     private SyncOrderService syncOrderService;
     private ExecutorService executor;
@@ -45,7 +47,11 @@ class AsyncOrderServiceTest {
         productManager = new ProductManager(productRepository);
         cartManager = new CartManager(productManager);
         discountService = new DiscountService();
-        orderService = new OrderService(cartManager, orderRepository, discountService);
+        approvalChain = new ApprovalChain(List.of(
+                new RequiredFieldsStep(),
+                new StockAvailabilityStep()
+        ));
+        orderService = new OrderService(cartManager, orderRepository, discountService, approvalChain);
         syncOrderService = new SyncOrderService(orderService);
         executor = Executors.newFixedThreadPool(4);
         asyncOrderService = new AsyncOrderService(orderService, executor);

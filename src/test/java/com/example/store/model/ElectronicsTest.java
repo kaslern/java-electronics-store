@@ -17,7 +17,13 @@ class ElectronicsTest {
     private static final int DEFAULT_QUANTITY = 5;
 
     private Electronics createElectronics(UUID id, String manufacturer, String model, BigDecimal price, int quantity) {
-        return new Electronics(id, manufacturer, model, price, quantity);
+        return Electronics.builder()
+                .id(id)
+                .manufacturer(manufacturer)
+                .model(model)
+                .price(price)
+                .quantity(quantity)
+                .build();
     }
 
     private Electronics createDefaultElectronics() {

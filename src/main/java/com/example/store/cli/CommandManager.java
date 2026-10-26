@@ -3,6 +3,7 @@ package com.example.store.cli;
 import com.example.store.exception.InsufficientStockException;
 import com.example.store.model.*;
 import com.example.store.service.*;
+import com.example.store.service.discount.DiscountService;
 
 import java.util.List;
 import java.util.Scanner;
@@ -158,33 +159,32 @@ public class CommandManager {
         DiskSize selectedDisk = promptForChoice("Select DISK size:", DiskSize.values());
         ProcessorType selectedProcessor = promptForChoice("Select processor:", ProcessorType.values());
 
-        return new Computer(
-                base.getId(),
-                base.getManufacturer(),
-                base.getModel(),
-                base.getPrice(),
-                base.getQuantity(),
-                selectedProcessor,
-                selectedDisk,
-                selectedRam
-        );
+        return Computer.builder()
+                .id(base.getId())
+                .manufacturer(base.getManufacturer())
+                .model(base.getModel())
+                .price(base.getPrice())
+                .quantity(base.getQuantity())
+                .processorType(selectedProcessor)
+                .diskSize(selectedDisk)
+                .ramSize(selectedRam)
+                .build();
     }
 
     private Smartphone configureSmartphone(Smartphone base) {
         Color selectedColor = promptForChoice("Select color:", Color.values());
         BatteryCapacity selectedBattery = promptForChoice("Select battery size:", BatteryCapacity.values());
 
-        return new Smartphone(
-                base.getId(),
-                base.getManufacturer(),
-                base.getModel(),
-                base.getPrice(),
-                base.getQuantity(),
-                selectedColor,
-                selectedBattery,
-                base.getAccessories()
-        );
-    }
+        return Smartphone.builder()
+                .id(base.getId())
+                .manufacturer(base.getManufacturer())
+                .model(base.getModel())
+                .price(base.getPrice())
+                .quantity(base.getQuantity())
+                .color(selectedColor)
+                .batteryCapacity(selectedBattery)
+                .accessories(base.getAccessories())
+                .build();    }
 
 
     private <T> T promptForChoice(String message, T[] options) {

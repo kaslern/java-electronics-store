@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class InvoiceTest {
     private Address validAddress;
@@ -33,10 +32,16 @@ class InvoiceTest {
         validCustomer = new Customer(UUID.randomUUID(), "Janusz",
                 "Nosacz", "kiedysToBylo@prl.ru", validAddress);
 
-        List<String> accessories = List.of("Charger");
-        smartphone1 = new Smartphone(UUID.randomUUID(), "Apple",
-                "Iphone 18", BigDecimal.valueOf(5000), 1,
-                Color.BLACK, BatteryCapacity.BATTERY_4500MAH, accessories);
+        smartphone1 = Smartphone.builder()
+                .id(UUID.randomUUID())
+                .manufacturer("Apple")
+                .model("Iphone 18")
+                .price(BigDecimal.valueOf(5000))
+                .quantity(1)
+                .color(Color.BLACK)
+                .batteryCapacity(BatteryCapacity.BATTERY_4500MAH)
+                .accessories(List.of("Charger", "Case"))
+                .build();
 
         validOrderItem = new OrderItem(smartphone1, 1, BigDecimal.valueOf(5000));
         validItems = List.of(validOrderItem);
