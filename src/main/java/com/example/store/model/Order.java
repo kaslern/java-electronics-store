@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -15,6 +16,9 @@ import java.util.UUID;
 @ToString
 @EqualsAndHashCode
 public class Order implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final UUID orderId;
     private final Customer customer;
     private final List<OrderItem> items;
@@ -41,7 +45,7 @@ public class Order implements Serializable {
             throw new IllegalArgumentException("Order must contain at least one item and cannot be null");
         }
         if (totalPrice == null || totalPrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Total price must be greater than zero and cannot be null");
+            throw new IllegalArgumentException("Total price cannot be null or negative");
         }
         if (orderDate == null || orderDate.isAfter(LocalDateTime.now(clock))) {
             throw new IllegalArgumentException("Order date cannot be null or in the future");

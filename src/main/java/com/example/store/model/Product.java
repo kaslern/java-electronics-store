@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -14,6 +15,9 @@ import java.util.UUID;
 @ToString
 
 public abstract class Product implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final UUID id;
     private final String manufacturer;
     private final String model;
@@ -52,11 +56,8 @@ public abstract class Product implements Serializable {
     }
 
     public void decreaseQuantity(int amount) {
-        if (amount < 0) {
-            throw new IllegalArgumentException("Amount cannot be negative");
-        }
-        if (this.quantity == 0) {
-            throw new InsufficientStockException("Product out of stock");
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than zero");
         }
         if (amount > this.quantity) {
             throw new InsufficientStockException("Not enough stock available! Available pcs: " + quantity);

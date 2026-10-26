@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -11,6 +12,9 @@ import java.math.BigDecimal;
 @ToString
 @EqualsAndHashCode
 public class OrderItem implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final Product product;
     private final int quantity;
     private final BigDecimal purchasePrice;

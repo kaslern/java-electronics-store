@@ -14,18 +14,26 @@ public class FileOrderRepository implements OrderRepository {
 
     public FileOrderRepository(File file) {
         this.file = file;
+        this.orders = loadOrdersFromFile(file);
+    }
 
-        if (file.exists() && file.length() > 0) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-                this.orders = (Map<UUID, Order>) ois.readObject();
-                log.info("Successfully loaded {} orders from file: {}", orders.size(), file.getName());
-            } catch (IOException | ClassNotFoundException e) {
-                log.error("Failed to read orders from file: {}", file.getName(), e);
-                throw new FileStorageException("Could not read orders from file: " + file.getName(), e);
-            }
-        } else {
+    @SuppressWarnings("unchecked")
+    private Map<UUID, Order> loadOrdersFromFile(File file) {
+        if (!file.exists() || file.length() == 0) {
             log.info("Order file does not exist or is empty. Initialized empty repository. File: {}", file.getName());
-            this.orders = new HashMap<>();
+            return new HashMap<>();
+        }
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+            Map<UUID, Order> loaded = (Map<UUID, Order>) ois.readObject();
+            log.info("Successfully loaded {} orders from file: {}", loaded.size(), file.getName());
+            return loaded;
+        } catch (InvalidClassException e) {
+            log.warn("Incompatible order serialization format in file {}. Starting with empty repository.", file.getName());
+            return new HashMap<>();
+        } catch (IOException | ClassNotFoundException e) {
+            log.error("Failed to read orders from file: {}", file.getName(), e);
+            throw new FileStorageException("Could not read orders from file: " + file.getName(), e);
         }
     }
 
