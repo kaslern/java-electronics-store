@@ -12,5 +12,5 @@ public enum DiskSize {
     DISK_1_TB("1 TB"),
     DISK_2_TB("2 TB");
 
-    private final String description;
+    private final String displayName;
 }

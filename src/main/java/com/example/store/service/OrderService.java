@@ -1,9 +1,7 @@
 package com.example.store.service;
 
-import com.example.store.model.Cart;
-import com.example.store.model.Customer;
-import com.example.store.model.Order;
-import com.example.store.model.OrderItem;
+import com.example.store.exception.InsufficientStockException;
+import com.example.store.model.*;
 import com.example.store.repo.OrderRepository;
 
 import java.math.BigDecimal;
@@ -28,9 +26,19 @@ public class OrderService {
             throw new IllegalStateException("Cart is empty");
         }
 
+        for (Product product : cart.getProducts()) {
+            if (product.getQuantity() < 1) {
+                throw new InsufficientStockException("Product out of stock: " + product.getName());
+            }
+        }
+
+        for (Product product : cart.getProducts()) {
+            product.decreaseQuantity(1);
+        }
+
         BigDecimal cartTotalPrice = cartManager.calculateTotalPrice(cart);
         List<OrderItem> items = cart.getProducts().stream()
-                .map(product -> new OrderItem(product, product.getQuantity(), product.getPrice()))
+                .map(product -> new OrderItem(product, 1, product.getPrice()))
                 .toList();
         Order order = new Order(UUID.randomUUID(), customer, items, cartTotalPrice, LocalDateTime.now());
         orderRepository.save(order);
