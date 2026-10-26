@@ -25,7 +25,7 @@ public class FileOrderRepository implements OrderRepository {
     }
 
     @Override
-    public Order save(Order order) {
+    public synchronized Order save(Order order) {
         this.orders.put(order.getOrderId(), order);
 
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {

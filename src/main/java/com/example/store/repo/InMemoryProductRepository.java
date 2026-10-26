@@ -3,10 +3,11 @@ package com.example.store.repo;
 import com.example.store.model.Product;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryProductRepository implements ProductRepository {
 
-    private final Map<UUID, Product> products = new HashMap<>();
+    private final Map<UUID, Product> products = new ConcurrentHashMap<>();
 
     @Override
     public Product save(Product product) {

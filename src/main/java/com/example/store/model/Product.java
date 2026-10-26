@@ -4,6 +4,7 @@ import com.example.store.exception.InsufficientStockException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Getter
 @EqualsAndHashCode(of = "id")
 @ToString
+@SuperBuilder
 public abstract class Product implements Serializable {
     private final UUID id;
     private final String manufacturer;

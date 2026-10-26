@@ -2,6 +2,7 @@ package com.example.store.model;
 
 import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.UUID;
 
 @Getter
 @ToString(callSuper = true)
+@SuperBuilder
 
 public class Smartphone extends Product {
     private final Color color;

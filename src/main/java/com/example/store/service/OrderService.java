@@ -43,7 +43,18 @@ public class OrderService {
         Order order = new Order(UUID.randomUUID(), customer, items, cartTotalPrice, LocalDateTime.now());
         orderRepository.save(order);
 
+        simulateLongOrderProcessing();
+
         cart.clear();
         return order;
+    }
+
+    private void simulateLongOrderProcessing() {
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Processing has stopped", e);
+        }
     }
 }
