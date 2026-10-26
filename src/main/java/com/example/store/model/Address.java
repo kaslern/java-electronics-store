@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
@@ -13,6 +14,8 @@ import java.util.regex.Pattern;
 @EqualsAndHashCode
 
 public class Address implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private static final Pattern POSTCODE_PATTERN = Pattern.compile("^\\d{2}-\\d{3}$");
     private final String street;
     private final String city;

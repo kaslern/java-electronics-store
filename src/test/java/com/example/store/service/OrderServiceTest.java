@@ -14,6 +14,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,11 +35,8 @@ class OrderServiceTest {
     private OrderRepository orderRepository;
     @Mock
     private DiscountService discountService;
-
     private ApprovalChain approvalChain;
-
     private OrderService orderService;
-
     private Cart cart;
     private Smartphone smartphone1;
     private Smartphone smartphone2;
@@ -50,7 +50,11 @@ class OrderServiceTest {
                 new StockAvailabilityStep()
         ));
 
-        orderService = new OrderService(cartManager, orderRepository, discountService, approvalChain);
+        Instant fixedInstant = Instant.parse("2026-10-26T10:00:00Z");
+        ZoneId zoneId = ZoneId.of("Europe/Warsaw");
+        Clock fixedClock = Clock.fixed(fixedInstant, zoneId);
+
+        orderService = new OrderService(cartManager, orderRepository, discountService, approvalChain, fixedClock);
 
         address = new Address("ul. Gratisowa 8", "Cebulowo", "21-370");
         customer = new Customer(UUID.randomUUID(), "Janusz", "Nosacz", "kiedysToBylo@prl.ru", address);

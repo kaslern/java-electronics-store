@@ -1,6 +1,7 @@
 package com.example.store.service.discount;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 public class DiscountService {
@@ -11,7 +12,7 @@ public class DiscountService {
             BigDecimal rate = discount.getDiscountRate(orderDate, promoCode);
             maxRate = maxRate.max(rate);
         }
-        return basePrice.subtract(basePrice.multiply(maxRate));
+        return basePrice.subtract(basePrice.multiply(maxRate)).setScale(2, RoundingMode.HALF_UP);
     }
 
     public boolean isValidPromoCode(String code) {

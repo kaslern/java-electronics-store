@@ -15,7 +15,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CartManagerTest {
@@ -60,11 +59,8 @@ class CartManagerTest {
 
     @Test
     void shouldAddProductToCart() {
-        // Arrange
-        when(productManager.findById(smartphone1.getId())).thenReturn(smartphone1);
-
         // Act
-        cartManager.addProductToCart(smartphone1.getId(), cart);
+        cartManager.addProductToCart(smartphone1, cart);
 
         // Assert
         assertEquals(1, cart.getProducts().size());
@@ -125,17 +121,17 @@ class CartManagerTest {
         @Test
         void shouldThrowExceptionForAddProductToCartWhenCartIsNull() {
             // Act & Assert
-            assertThatThrownBy(() -> cartManager.addProductToCart(smartphone1.getId(), null))
+            assertThatThrownBy(() -> cartManager.addProductToCart(smartphone1, null))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Cart and product ID must not be null");
+                    .hasMessage("Cart must not be null");
         }
 
         @Test
-        void shouldThrowExceptionForAddProductToCartWhenProductIdIsNull() {
+        void shouldThrowExceptionForAddProductToCartWhenProductIsNull() {
             // Act & Assert
             assertThatThrownBy(() -> cartManager.addProductToCart(null, cart))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Cart and product ID must not be null");
+                    .hasMessage("Product must not be null");
         }
 
         @Test
@@ -143,7 +139,7 @@ class CartManagerTest {
             // Act & Assert
             assertThatThrownBy(() -> cartManager.removeProductFromCart(smartphone1.getId(), null))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Cart and product ID must not be null");
+                    .hasMessage("Cart must not be null");
         }
 
         @Test
@@ -151,7 +147,7 @@ class CartManagerTest {
             // Act & Assert
             assertThatThrownBy(() -> cartManager.removeProductFromCart(null, cart))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Cart and product ID must not be null");
+                    .hasMessage("Product ID must not be null");
         }
 
         @Test

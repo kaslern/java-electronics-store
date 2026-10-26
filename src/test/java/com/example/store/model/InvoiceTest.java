@@ -4,8 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +22,7 @@ class InvoiceTest {
     private Order validOrder;
     private String validInvoiceNumber;
     private LocalDate validIssueDate;
+    private Clock fixedClock;
 
 
     @BeforeEach
@@ -31,6 +31,10 @@ class InvoiceTest {
 
         validCustomer = new Customer(UUID.randomUUID(), "Janusz",
                 "Nosacz", "kiedysToBylo@prl.ru", validAddress);
+
+        Instant fixedInstant = Instant.parse("2026-10-26T10:00:00Z");
+        ZoneId zoneId = ZoneId.of("Europe/Warsaw");
+        fixedClock = Clock.fixed(fixedInstant, zoneId);
 
         smartphone1 = Smartphone.builder()
                 .id(UUID.randomUUID())
@@ -48,11 +52,13 @@ class InvoiceTest {
 
         validOrderId = UUID.randomUUID();
         validTotalPrice = BigDecimal.valueOf(5000);
-        validOrderDate = LocalDateTime.now();
 
-        validOrder = new Order(validOrderId, validCustomer, validItems, validTotalPrice, validOrderDate);
+        validOrderDate = LocalDateTime.now(fixedClock);
+
+        validOrder = new Order(validOrderId, validCustomer, validItems, validTotalPrice, validOrderDate, fixedClock);
         validInvoiceNumber = "INV-2026-0001";
-        validIssueDate = LocalDate.now();
+
+        validIssueDate = LocalDate.now(fixedClock);
     }
 
     @Test

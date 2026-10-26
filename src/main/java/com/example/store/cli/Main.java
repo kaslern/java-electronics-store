@@ -10,11 +10,15 @@ import com.example.store.validation.StockAvailabilityStep;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
 public class Main {
     public static void main(String[] args) {
+        Clock clock = Clock.system(ZoneId.of("Europe/Warsaw"));
+
         File ordersFile = new File("orders.dat");
         ProductRepository productRepository = new InMemoryProductRepository();
         OrderRepository orderRepository = new FileOrderRepository(ordersFile);
@@ -25,8 +29,8 @@ public class Main {
         ));
         CartManager cartManager = new CartManager(productManager);
         DiscountService discountService = new DiscountService();
-        OrderService orderService = new OrderService(cartManager, orderRepository, discountService, approvalChain);
-        InvoiceGenerator invoiceGenerator = new InvoiceGenerator();
+        OrderService orderService = new OrderService(cartManager, orderRepository, discountService, approvalChain, clock);
+        InvoiceGenerator invoiceGenerator = new InvoiceGenerator(clock);
 
         List<Order> loadedOrders = orderRepository.findAll();
         System.out.println("==================================================");
@@ -58,6 +62,7 @@ public class Main {
                 .diskSize(DiskSize.DISK_1_TB)
                 .ramSize(RamSize.RAM_16GB)
                 .build();
+
         Product smartphone = Smartphone.builder()
                 .id(UUID.randomUUID())
                 .manufacturer("Apple")

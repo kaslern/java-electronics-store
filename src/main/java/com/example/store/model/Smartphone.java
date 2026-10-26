@@ -24,7 +24,7 @@ public class Smartphone extends Product {
         validate(color, batteryCapacity, accessories);
         this.color = color;
         this.batteryCapacity = batteryCapacity;
-        this.accessories = accessories;
+        this.accessories = List.copyOf(accessories);
     }
 
     private void validate(Color color, BatteryCapacity batteryCapacity, List<String> accessories) {

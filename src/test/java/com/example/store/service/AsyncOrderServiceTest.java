@@ -14,6 +14,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -22,40 +25,34 @@ import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-
 
 class AsyncOrderServiceTest {
 
-    private OrderService orderService;
-    private OrderRepository orderRepository;
-    private CartManager cartManager;
-    private ProductManager productManager;
-    private ProductRepository productRepository;
-    private DiscountService discountService;
-    private ApprovalChain approvalChain;
     private AsyncOrderService asyncOrderService;
     private SyncOrderService syncOrderService;
     private ExecutorService executor;
     private Customer customer;
-    private Address address;
 
     @BeforeEach
     void setUp() {
-        productRepository = new InMemoryProductRepository();
-        orderRepository = new InMemoryOrderRepository();
-        productManager = new ProductManager(productRepository);
-        cartManager = new CartManager(productManager);
-        discountService = new DiscountService();
-        approvalChain = new ApprovalChain(List.of(
+        ProductRepository productRepository = new InMemoryProductRepository();
+        OrderRepository orderRepository = new InMemoryOrderRepository();
+        ProductManager productManager = new ProductManager(productRepository);
+        CartManager cartManager = new CartManager(productManager);
+        DiscountService discountService = new DiscountService();
+        ApprovalChain approvalChain = new ApprovalChain(List.of(
                 new RequiredFieldsStep(),
                 new StockAvailabilityStep()
         ));
-        orderService = new OrderService(cartManager, orderRepository, discountService, approvalChain);
+        Instant fixedInstant = Instant.parse("2026-10-26T10:00:00Z");
+        ZoneId zoneId = ZoneId.of("Europe/Warsaw");
+        Clock fixedClock = Clock.fixed(fixedInstant, zoneId);
+
+        OrderService orderService = new OrderService(cartManager, orderRepository, discountService, approvalChain, fixedClock);
         syncOrderService = new SyncOrderService(orderService);
         executor = Executors.newFixedThreadPool(4);
         asyncOrderService = new AsyncOrderService(orderService, executor);
-        address = new Address("ul. Gratisowa 8", "Cebulowo", "21-370");
+        Address address = new Address("ul. Gratisowa 8", "Cebulowo", "21-370");
         customer = new Customer(UUID.randomUUID(), "Janusz", "Nosacz", "kiedysToBylo@prl.ru", address);
 
     }

@@ -1,6 +1,7 @@
 package com.example.store.cli;
 
 import com.example.store.exception.InsufficientStockException;
+import com.example.store.exception.ProductNotFoundException;
 import com.example.store.model.*;
 import com.example.store.service.*;
 import com.example.store.service.discount.DiscountService;
@@ -16,6 +17,7 @@ public class CommandManager {
     private final ProductManager productManager;
     private final Cart currentCart = new Cart();
     private final DiscountService discountService;
+    private final Scanner scanner = new Scanner(System.in);
 
     public CommandManager(CartManager cartManager, InvoiceGenerator invoiceGenerator, OrderService orderService,
                           ProductManager productManager, DiscountService discountService) {
@@ -26,20 +28,12 @@ public class CommandManager {
         this.discountService = discountService;
     }
 
-    Scanner scanner = new Scanner(System.in);
-
     public void commandCenter() {
         boolean running = true;
 
         while (running) {
             printMenu();
-            String userInput = scanner.nextLine();
-
-            int choice = -1;
-            try {
-                choice = Integer.parseInt(userInput);
-            } catch (NumberFormatException e) {
-            }
+            int choice = readIntChoice();
 
             switch (choice) {
                 case 1 -> {
@@ -67,6 +61,15 @@ public class CommandManager {
         }
     }
 
+    private int readIntChoice() {
+        String userInput = scanner.nextLine();
+        try {
+            return Integer.parseInt(userInput);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
     private void printMenu() {
         System.out.println("""
                 =================================
@@ -89,43 +92,58 @@ public class CommandManager {
             return;
         }
         for (Product product : products) {
-            String extraDetails = "";
-
-            if (product instanceof Computer computer) {
-                extraDetails = """
-                        💻 Processor: %s
-                        🧠 RAM: %s
-                        💾 Disk: %s""".formatted(
-                        computer.getProcessorType().getDisplayName(),
-                        computer.getRamSize().getDisplayName(),
-                        computer.getDiskSize().getDisplayName()
-                );
-            } else if (product instanceof Smartphone phone) {
-                extraDetails = """
-                        🎨 Color: %s
-                        🔋 Battery: %s
-                        🔌 Accessories: %s""".formatted(
-                        phone.getColor(),
-                        phone.getBatteryCapacity().getDisplayName(),
-                        phone.getAccessories()
-                );
-            }
-
-            System.out.println("""
-                    --------------------------------------------------
-                    🆔 ID: %s
-                    🏷️ Name: %s
-                    💰 Price: %s PLN
-                    📦 Stock: %d pcs
-                    %s
-                    --------------------------------------------------""".formatted(
-                    product.getId(),
-                    product.getName(),
-                    product.getPrice(),
-                    product.getQuantity(),
-                    extraDetails
-            ));
+            System.out.println(formatProduct(product, true));
         }
+    }
+
+    private void handleShowCart() {
+        List<Product> products = cartManager.getAllProductsFromCart(currentCart);
+
+        if (products.isEmpty()) {
+            System.out.println("Cart is empty");
+            return;
+        }
+        for (Product product : products) {
+            System.out.println(formatProduct(product, false));
+        }
+    }
+
+    private String formatProduct(Product product, boolean showStock) {
+        String extraDetails = switch (product) {
+            case Computer computer -> """
+                    💻 Processor: %s
+                    🧠 RAM: %s
+                    💾 Disk: %s""".formatted(
+                    computer.getProcessorType().getDisplayName(),
+                    computer.getRamSize().getDisplayName(),
+                    computer.getDiskSize().getDisplayName()
+            );
+            case Smartphone phone -> """
+                    🎨 Color: %s
+                    🔋 Battery: %s
+                    🔌 Accessories: %s""".formatted(
+                    phone.getColor(),
+                    phone.getBatteryCapacity().getDisplayName(),
+                    phone.getAccessories()
+            );
+            default -> "";
+        };
+
+        String stockLine = showStock ? "📦 Stock: %d pcs%n".formatted(product.getQuantity()) : "";
+
+        return """
+                --------------------------------------------------
+                🆔 ID: %s
+                🏷️ Name: %s
+                💰 Price: %s PLN
+                %s%s
+                --------------------------------------------------""".formatted(
+                product.getId(),
+                product.getName(),
+                product.getPrice(),
+                stockLine,
+                extraDetails
+        );
     }
 
     private void handleAddToCart() {
@@ -134,21 +152,21 @@ public class CommandManager {
 
         try {
             UUID productId = UUID.fromString(userInput);
-            Product product = productManager.findById(productId);
-            if (product == null) {
-                System.out.println("Product not found");
-                return;
+            try {
+                Product product = productManager.findById(productId);
+
+                if (product instanceof Computer computer) {
+                    product = configureComputer(computer);
+                } else if (product instanceof Smartphone smartphone) {
+                    product = configureSmartphone(smartphone);
+                }
+
+                cartManager.addProductToCart(product, currentCart);
+                System.out.println("Product added to cart!");
+
+            } catch (ProductNotFoundException e) {
+                System.out.println("Product not found.");
             }
-
-            if (product instanceof Computer computer) {
-                product = configureComputer(computer);
-            } else if (product instanceof Smartphone smartphone) {
-                product = configureSmartphone(smartphone);
-            }
-
-            currentCart.addProduct(product);
-            System.out.println("Product added to cart!");
-
         } catch (IllegalArgumentException e) {
             System.out.println("Invalid UUID format. Please try again.");
         }
@@ -184,8 +202,8 @@ public class CommandManager {
                 .color(selectedColor)
                 .batteryCapacity(selectedBattery)
                 .accessories(base.getAccessories())
-                .build();    }
-
+                .build();
+    }
 
     private <T> T promptForChoice(String message, T[] options) {
         System.out.println(message);
@@ -195,63 +213,13 @@ public class CommandManager {
         int choice = -1;
 
         while (choice < 1 || choice > options.length) {
-            try {
-                System.out.print("Enter choice: ");
-                choice = Integer.parseInt(scanner.nextLine());
-
-                if (choice < 1 || choice > options.length) {
-                    System.out.println("Invalid option, try again.");
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Please enter a valid number.");
+            System.out.print("Enter choice: ");
+            choice = readIntChoice();
+            if (choice < 1 || choice > options.length) {
+                System.out.println("Invalid option, try again.");
             }
         }
         return options[choice - 1];
-    }
-
-    private void handleShowCart() {
-        List<Product> products = cartManager.getAllProductsFromCart(currentCart);
-
-        if (products.isEmpty()) {
-            System.out.println("Cart is empty");
-            return;
-        }
-        for (Product product : products) {
-            String extraDetails = "";
-
-            if (product instanceof Computer computer) {
-                extraDetails = """
-                        💻 Processor: %s
-                        🧠 RAM: %s
-                        💾 Disk: %s""".formatted(
-                        computer.getProcessorType().getDisplayName(),
-                        computer.getRamSize().getDisplayName(),
-                        computer.getDiskSize().getDisplayName()
-                );
-            } else if (product instanceof Smartphone phone) {
-                extraDetails = """
-                        🎨 Color: %s
-                        🔋 Battery: %s
-                        🔌 Accessories: %s""".formatted(
-                        phone.getColor(),
-                        phone.getBatteryCapacity().getDisplayName(),
-                        phone.getAccessories()
-                );
-            }
-
-            System.out.println("""
-                    --------------------------------------------------
-                    🆔 ID: %s
-                    🏷️ Name: %s
-                    💰 Price: %s PLN
-                    %s
-                    --------------------------------------------------""".formatted(
-                    product.getId(),
-                    product.getName(),
-                    product.getPrice(),
-                    extraDetails
-            ));
-        }
     }
 
     private void handlePlaceOrder() {
@@ -311,18 +279,12 @@ public class CommandManager {
         boolean running = true;
         while (running) {
             System.out.println("""
-        --------------------------------------------------
-        Do you have promo code?
-        1. YES
-        2. NO
-        --------------------------------------------------""");
-            String userInput = scanner.nextLine();
-
-            int choice = -1;
-            try {
-                choice = Integer.parseInt(userInput);
-            } catch (NumberFormatException e) {
-            }
+                    --------------------------------------------------
+                    Do you have promo code?
+                    1. YES
+                    2. NO
+                    --------------------------------------------------""");
+            int choice = readIntChoice();
 
             switch (choice) {
                 case 1 -> {
@@ -336,8 +298,8 @@ public class CommandManager {
                         System.out.println("Invalid promo code! Try again.");
                     }
                 }
-
                 case 2 -> running = false;
+                default -> System.out.println("Invalid option, try again.");
             }
         }
     }

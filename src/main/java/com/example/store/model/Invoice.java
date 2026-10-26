@@ -1,6 +1,8 @@
 package com.example.store.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,6 +11,8 @@ public record Invoice(
         LocalDate issueDate,
         Order order
 ) {
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
     public Invoice {
         if (invoiceNumber == null || invoiceNumber.isBlank()) {
             throw new IllegalArgumentException("Invoice number cannot be null or empty");
@@ -23,6 +27,13 @@ public record Invoice(
 
     @Override
     public String toString() {
+        BigDecimal subtotal = order.getItems().stream()
+                .map(item -> item.getPurchasePrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal discount = subtotal.subtract(order.getTotalPrice());
+        String formattedOrderDate = order.getOrderDate().format(DATE_FORMATTER);
+
         String template = """
                 ==================================
                 INVOICE NO: %s
@@ -32,16 +43,20 @@ public record Invoice(
                 ITEMS:
                 %s
                 ----------------------------------
+                Subtotal: %s PLN
+                Discount: -%s PLN
                 Total Amount: %s PLN
                 ==================================
                 """;
 
         return template.formatted(
                 invoiceNumber,
-                order.getOrderDate(),
+                formattedOrderDate,
                 order.getCustomer().getFirstName(),
                 order.getCustomer().getLastName(),
                 formatOrderItems(order.getItems()),
+                subtotal,
+                discount,
                 order.getTotalPrice()
         );
     }
