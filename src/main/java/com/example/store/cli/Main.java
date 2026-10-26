@@ -2,10 +2,7 @@ package com.example.store.cli;
 
 import com.example.store.model.*;
 import com.example.store.repo.*;
-import com.example.store.service.CartManager;
-import com.example.store.service.InvoiceGenerator;
-import com.example.store.service.OrderService;
-import com.example.store.service.ProductManager;
+import com.example.store.service.*;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -19,7 +16,8 @@ public class Main {
         OrderRepository orderRepository = new FileOrderRepository(ordersFile);
         ProductManager productManager = new ProductManager(productRepository);
         CartManager cartManager = new CartManager(productManager);
-        OrderService orderService = new OrderService(cartManager, orderRepository);
+        DiscountService discountService = new DiscountService();
+        OrderService orderService = new OrderService(cartManager, orderRepository, discountService);
         InvoiceGenerator invoiceGenerator = new InvoiceGenerator();
 
         List<Order> loadedOrders = orderRepository.findAll();
@@ -38,7 +36,7 @@ public class Main {
                 UUID.randomUUID(),
                 "Sony",
                 "Bravia 55",
-                BigDecimal.valueOf(3200),
+                BigDecimal.valueOf(1000),
                 1
         );
 
@@ -69,7 +67,7 @@ public class Main {
         productManager.addProduct(phone);
 
         CommandManager commandManager = new CommandManager(cartManager, invoiceGenerator,
-                orderService, productManager);
+                orderService, productManager, discountService);
         commandManager.commandCenter();
     }
 }

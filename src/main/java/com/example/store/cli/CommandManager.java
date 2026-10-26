@@ -2,10 +2,7 @@ package com.example.store.cli;
 
 import com.example.store.exception.InsufficientStockException;
 import com.example.store.model.*;
-import com.example.store.service.CartManager;
-import com.example.store.service.InvoiceGenerator;
-import com.example.store.service.OrderService;
-import com.example.store.service.ProductManager;
+import com.example.store.service.*;
 
 import java.util.List;
 import java.util.Scanner;
@@ -17,12 +14,15 @@ public class CommandManager {
     private final OrderService orderService;
     private final ProductManager productManager;
     private final Cart currentCart = new Cart();
+    private final DiscountService discountService;
 
-    public CommandManager(CartManager cartManager, InvoiceGenerator invoiceGenerator, OrderService orderService, ProductManager productManager) {
+    public CommandManager(CartManager cartManager, InvoiceGenerator invoiceGenerator, OrderService orderService,
+                          ProductManager productManager, DiscountService discountService) {
         this.cartManager = cartManager;
         this.invoiceGenerator = invoiceGenerator;
         this.orderService = orderService;
         this.productManager = productManager;
+        this.discountService = discountService;
     }
 
     Scanner scanner = new Scanner(System.in);
@@ -261,6 +261,7 @@ public class CommandManager {
         }
         Address address = promptForAddress();
         Customer customer = promptForCustomer(address);
+        promptForPromoCode();
 
         try {
             Order order = orderService.createOrder(customer, currentCart);
@@ -306,5 +307,38 @@ public class CommandManager {
         }
     }
 
+    private void promptForPromoCode() {
+        boolean running = true;
+        while (running) {
+            System.out.println("""
+        --------------------------------------------------
+        Do you have promo code?
+        1. YES
+        2. NO
+        --------------------------------------------------""");
+            String userInput = scanner.nextLine();
 
+            int choice = -1;
+            try {
+                choice = Integer.parseInt(userInput);
+            } catch (NumberFormatException e) {
+            }
+
+            switch (choice) {
+                case 1 -> {
+                    System.out.println("Enter promo code");
+                    String userCode = scanner.nextLine();
+                    if (discountService.isValidPromoCode(userCode)) {
+                        currentCart.applyPromoCode(userCode);
+                        System.out.println("Promo code applied!");
+                        running = false;
+                    } else {
+                        System.out.println("Invalid promo code! Try again.");
+                    }
+                }
+
+                case 2 -> running = false;
+            }
+        }
+    }
 }
