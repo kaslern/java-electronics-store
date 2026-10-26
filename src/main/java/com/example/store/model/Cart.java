@@ -41,4 +41,8 @@ public class Cart {
     public List<Product> getProducts() {
         return Collections.unmodifiableList(products);
     }
+
+    public void clear() {
+        this.products.clear();
+    }
 }
