@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Getter
 @ToString
 @EqualsAndHashCode
-public class Order {
+public class Order implements Serializable {
     private final UUID orderId;
     private final Customer customer;
     private final List<OrderItem> items;

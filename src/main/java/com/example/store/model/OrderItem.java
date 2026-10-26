@@ -4,12 +4,13 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Getter
 @ToString
 @EqualsAndHashCode
-public class OrderItem {
+public class OrderItem implements Serializable {
     private final Product product;
     private final int quantity;
     private final BigDecimal purchasePrice;

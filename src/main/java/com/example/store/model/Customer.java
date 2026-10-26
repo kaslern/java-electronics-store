@@ -4,13 +4,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.io.Serializable;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 @Getter
 @ToString
 @EqualsAndHashCode
-public class Customer {
+public class Customer implements Serializable {
     private static final Pattern EMAIL_PATTERN =
             Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
 
