@@ -1,11 +1,12 @@
 package com.example.store.model;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -20,8 +21,8 @@ public class Order implements Serializable {
     private final BigDecimal totalPrice;
     private final LocalDateTime orderDate;
 
-    public Order(UUID orderId, Customer customer, List<OrderItem> items, BigDecimal totalPrice, LocalDateTime orderDate) {
-        validate(orderId, customer, items, totalPrice, orderDate);
+    public Order(UUID orderId, Customer customer, List<OrderItem> items, BigDecimal totalPrice, LocalDateTime orderDate, Clock clock) {
+        validate(orderId, customer, items, totalPrice, orderDate, clock);
         this.orderId = orderId;
         this.customer = customer;
         this.items = List.copyOf(items);
@@ -29,7 +30,7 @@ public class Order implements Serializable {
         this.orderDate = orderDate;
     }
 
-    private void validate(UUID orderId, Customer customer, List<OrderItem> items, BigDecimal totalPrice, LocalDateTime orderDate) {
+    private void validate(UUID orderId, Customer customer, List<OrderItem> items, BigDecimal totalPrice, LocalDateTime orderDate, Clock clock) {
         if (orderId == null) {
             throw new IllegalArgumentException("Order ID cannot be null");
         }
@@ -42,7 +43,7 @@ public class Order implements Serializable {
         if (totalPrice == null || totalPrice.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Total price must be greater than zero and cannot be null");
         }
-        if (orderDate == null || orderDate.isAfter(LocalDateTime.now())) {
+        if (orderDate == null || orderDate.isAfter(LocalDateTime.now(clock))) {
             throw new IllegalArgumentException("Order date cannot be null or in the future");
         }
     }

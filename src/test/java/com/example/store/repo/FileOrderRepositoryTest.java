@@ -8,7 +8,10 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.math.BigDecimal;
 import java.nio.file.Path;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,11 +25,16 @@ class FileOrderRepositoryTest {
 
     private File testFile;
     private FileOrderRepository repository;
+    private Clock fixedClock;
 
     @BeforeEach
     void setUp() {
         testFile = tempDir.resolve("test_orders.dat").toFile();
         repository = new FileOrderRepository(testFile);
+
+        Instant fixedInstant = Instant.parse("2026-10-26T10:00:00Z");
+        ZoneId zoneId = ZoneId.of("Europe/Warsaw");
+        fixedClock = Clock.fixed(fixedInstant, zoneId);
     }
 
     @Test
@@ -72,6 +80,6 @@ class FileOrderRepositoryTest {
                 .build();
         OrderItem item = new OrderItem(tv, 1, tv.getPrice());
 
-        return new Order(UUID.randomUUID(), customer, List.of(item), BigDecimal.valueOf(3000), LocalDateTime.now());
+        return new Order(UUID.randomUUID(), customer, List.of(item), BigDecimal.valueOf(3000), LocalDateTime.now(fixedClock), fixedClock);
     }
 }
