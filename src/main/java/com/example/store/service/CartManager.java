@@ -16,22 +16,17 @@ public class CartManager {
         this.productManager = productManager;
     }
 
-    public void addProductToCart(UUID productId, Cart cart) {
-        if (productId == null || cart == null) {
-            log.warn("Invalid arguments for adding product to cart: cart or productId is null");
-            throw new IllegalArgumentException("Cart and product ID must not be null");
-        }
+    public void addProductToCart(Product product, Cart cart) {
+        validateNotNull(product, "Product must not be null");
+        validateCart(cart);
 
-        Product product = productManager.findById(productId);
         cart.addProduct(product);
         log.info("Product {} added to cart {}", product.getName(), cart.getId());
     }
 
     public void removeProductFromCart(UUID productId, Cart cart) {
-        if (productId == null || cart == null) {
-            log.warn("Invalid arguments for removing product from cart");
-            throw new IllegalArgumentException("Cart and product ID must not be null");
-        }
+        validateNotNull(productId, "Product ID must not be null");
+        validateCart(cart);
 
         boolean removed = cart.removeProduct(productId);
         if (!removed) {
@@ -42,18 +37,28 @@ public class CartManager {
     }
 
     public List<Product> getAllProductsFromCart(Cart cart) {
-        if (cart == null) {
-            throw new IllegalArgumentException("Cart must not be null");
-        }
+        validateCart(cart);
         return cart.getProducts();
     }
 
     public BigDecimal calculateTotalPrice(Cart cart) {
-        if (cart == null) {
-            throw new IllegalArgumentException("Cart must not be null");
-        }
+        validateCart(cart);
         return cart.getProducts().stream()
                 .map(Product::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private void validateCart(Cart cart) {
+        if (cart == null) {
+            log.warn("Cart argument is null");
+            throw new IllegalArgumentException("Cart must not be null");
+        }
+    }
+
+    private void validateNotNull(Object object, String message) {
+        if (object == null) {
+            log.warn("Validation failed: {}", message);
+            throw new IllegalArgumentException(message);
+        }
     }
 }
