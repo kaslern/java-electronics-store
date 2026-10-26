@@ -101,7 +101,7 @@ class OrderTest {
         assertThatThrownBy(() ->
                 new Order(validOrderId, validCustomer, validItems, null, validOrderDate, fixedClock))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Total price must be greater than zero and cannot be null");
+                .hasMessage("Total price cannot be null or negative");
     }
 
     @Test
@@ -110,7 +110,7 @@ class OrderTest {
         assertThatThrownBy(() ->
                 new Order(validOrderId, validCustomer, validItems, BigDecimal.valueOf(-1000), validOrderDate, fixedClock))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Total price must be greater than zero and cannot be null");
+                .hasMessage("Total price cannot be null or negative");
     }
 
     @Test
