@@ -3,9 +3,10 @@ package com.example.store.repo;
 import com.example.store.model.Order;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryOrderRepository implements OrderRepository{
-    private final Map<UUID, Order> orders = new HashMap<>();
+    private final Map<UUID, Order> orders = new ConcurrentHashMap<>();
 
     @Override
     public Order save(Order order){
